@@ -1,9 +1,6 @@
 settings:
-  embeddings-store:
-    db-id:
-    db-token:
-    db-region:
-    keyspace:
-
   openai:
     api-key:
+  # can be split to classpath and file uri and moved to settings instead
+  input:
+    source: "input-sources/htmlcheatsheet.pdf"

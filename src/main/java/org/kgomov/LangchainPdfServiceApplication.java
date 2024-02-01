@@ -4,17 +4,16 @@ import dev.langchain4j.chain.ConversationalRetrievalChain;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import org.junit.jupiter.api.Order;
 import org.kgomov.config.EmbeddingStoreSettings;
 import org.kgomov.config.OpenAISetting;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.Resource;
 
 import java.util.Scanner;
 
@@ -29,11 +28,12 @@ public class LangchainPdfServiceApplication {
     }
 
     @Bean
-    ApplicationRunner loadDocumentRunner(EmbeddingStoreIngestor ingestor, ResourceLoader resourceLoader) {
+    ApplicationRunner loadDocumentRunner(EmbeddingStoreIngestor ingestor,
+                                         @Value("classpath:${settings.input.source}") Resource resource) {
         return args -> {
-            System.out.println("Load htmlcheatsheet data");
+            System.out.println("Load document data");
             Document document = loadDocument(
-                    resourceLoader.getResource("classpath:input-sources/htmlcheatsheet.pdf").getFile().toPath(),
+                    resource.getFile().toPath(),
                     new ApachePdfBoxDocumentParser()
             );
             ingestor.ingest(document);

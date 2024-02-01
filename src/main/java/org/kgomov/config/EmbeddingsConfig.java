@@ -2,6 +2,7 @@ package org.kgomov.config;
 
 import dev.langchain4j.chain.ConversationalRetrievalChain;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
@@ -11,6 +12,7 @@ import dev.langchain4j.retriever.EmbeddingStoreRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.cassandra.AstraDbEmbeddingConfiguration;
 import dev.langchain4j.store.embedding.cassandra.AstraDbEmbeddingStore;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +20,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class EmbeddingsConfig {
-    private final EmbeddingStoreSettings embeddingsStore;
     private final OpenAISetting openai;
 
     @Bean
@@ -27,25 +28,13 @@ public class EmbeddingsConfig {
     }
 
     @Bean
-    public AstraDbEmbeddingConfiguration embeddingConfiguration() {
-        return AstraDbEmbeddingConfiguration
-                .builder()
-                .token(embeddingsStore.dbToken())
-                .databaseId(embeddingsStore.dbId())
-                .databaseRegion(embeddingsStore.dbRegion())
-                .keyspace(embeddingsStore.keyspace())
-                .table("chat")
-                .dimension(384)
-                .build();
+    public InMemoryEmbeddingStore<TextSegment> embeddingStore() {
+        return new InMemoryEmbeddingStore<>();
     }
 
     @Bean
-    public AstraDbEmbeddingStore embeddingStore(AstraDbEmbeddingConfiguration embeddingConfiguration) {
-        return new AstraDbEmbeddingStore(embeddingConfiguration);
-    }
-
-    @Bean
-    public EmbeddingStoreIngestor embeddingStoreIngestor(AstraDbEmbeddingStore embeddingStore, EmbeddingModel embeddingModel) {
+    public EmbeddingStoreIngestor embeddingStoreIngestor(InMemoryEmbeddingStore<TextSegment> embeddingStore,
+                                                         EmbeddingModel embeddingModel) {
         return EmbeddingStoreIngestor.builder()
                 .documentSplitter(DocumentSplitters.recursive(300, 0))
                 .embeddingModel(embeddingModel)
@@ -54,7 +43,7 @@ public class EmbeddingsConfig {
     }
 
     @Bean
-    public ConversationalRetrievalChain conversationalRetrievalChain(AstraDbEmbeddingStore embeddingStore,
+    public ConversationalRetrievalChain conversationalRetrievalChain(InMemoryEmbeddingStore<TextSegment> embeddingStore,
                                                                      EmbeddingModel embeddingModel) {
         return ConversationalRetrievalChain.builder()
                 .chatLanguageModel(OpenAiChatModel.withApiKey(openai.apiKey()))
