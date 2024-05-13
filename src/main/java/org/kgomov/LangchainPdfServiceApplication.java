@@ -4,6 +4,7 @@ import dev.langchain4j.chain.ConversationalRetrievalChain;
 import lombok.extern.slf4j.Slf4j;
 import org.kgomov.config.EmbeddingStoreSettings;
 import org.kgomov.config.OpenAISetting;
+import org.kgomov.service.ChatService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +24,7 @@ public class LangchainPdfServiceApplication {
     }
 
     @Bean
-    ApplicationRunner interactiveChatRunner(ConversationalRetrievalChain retrievalChain) {
+    ApplicationRunner interactiveChatRunner(ConversationalRetrievalChain retrievalChain, ChatService chatService) {
         return args -> {
             log.info("Spin up chat");
             try (Scanner scanner = new Scanner(System.in)) {
@@ -37,7 +38,8 @@ public class LangchainPdfServiceApplication {
                     StopWatch stopWatch = new StopWatch();
                     stopWatch.start("Answer question");
                     try {
-                        String agentMessage = retrievalChain.execute(userMessage);
+//                        String agentMessage = retrievalChain.execute(userMessage);
+                        String agentMessage = chatService.answer(userMessage);
                         System.out.println("Agent: " + agentMessage);
                     } finally {
                         stopWatch.stop();

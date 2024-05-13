@@ -15,7 +15,7 @@
     <description>Dummy spring boot project to load sample document as embeddings to chat with</description>
     <properties>
         <java.version>21</java.version>
-        <langchain.version>0.25.0</langchain.version>
+        <langchain.version>0.30.0</langchain.version>
     </properties>
     <dependencies>
         <dependency>
@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-cassandra</artifactId>
+            <artifactId>langchain4j-document-parser-apache-tika</artifactId>
             <version>${langchain.version}</version>
         </dependency>
 
